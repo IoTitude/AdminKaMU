@@ -1,4 +1,4 @@
-#Wed Jun 15 11:22:36 EEST 2016
+#Fri Jun 17 15:44:04 EEST 2016
 ENDPOINT_TOKEN=e0f63afd-978e-4a21-9848-0482700489e4
 attached_eps=
 PROFILE_HASH=2jmj7l5rSw0yVb/vlWAYkK/YBwk\=
@@ -7,5 +7,5 @@ is_registered=true
 need.profile.resync=false
 nf_subscriptions=rO0ABXNyABFqYXZhLnV0aWwuSGFzaE1hcAUH2sHDFmDRAwACRgAKbG9hZEZhY3RvckkACXRocmVzaG9sZHhwP0AAAAAAAAB3CAAAABAAAAAAeA\=\=
 is_attached=true
-properties.hash=52mAij0mCZ8cpVRcpJf2YCi5+Jk\=
-event.seq.num=3
+properties.hash=vd1awSBrW2NTW8Id+ELft077mas\=
+event.seq.num=18

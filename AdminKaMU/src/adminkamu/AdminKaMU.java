@@ -1,8 +1,12 @@
 package adminkamu;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.kaaproject.kaa.client.DesktopKaaPlatformContext;
 import org.kaaproject.kaa.client.Kaa;
 import org.kaaproject.kaa.client.KaaClient;
@@ -15,26 +19,32 @@ import org.kaaproject.kaa.common.endpoint.gen.SyncResponseResultType;
 import org.kaaproject.kaa.common.endpoint.gen.UserAttachResponse;
 import org.kaaproject.kaa.schema.sample.event.kamu.ChangeProfile;
 import org.kaaproject.kaa.schema.sample.event.kamu.KaMUEventClassFamily;
+import org.kaaproject.kaa.schema.sample.event.kamu.RegisterDevice;
+import org.kaaproject.kaa.schema.sample.event.kamu.RegistrationAnswer;
 
 
 public class AdminKaMU {
     static int profileID;
     static KaaClient kaaClient;
     static String target;
+    static BaasBoxController baas;
     
     public static void main(String[] args) {
         createKaaClient();
         kaaClient.start();
         attachUser();
-        do {
-            //endpointmenu();
-            profilemenu();    
-        } while (profileID != 0);  
+        
+        //do {
+            endpointmenu();
+            
+            //profilemenu();    
+        //} while (profileID != 0);  
     }
     
     //this menu lists all attached endpoints
-    /*public static void endpointmenu(){
+    public static void endpointmenu(){
         System.out.println("Choose an endpoint");
+        Map<String, String> map = parseDeviceMac();
         int iter = 0;
         for (Map.Entry<String, String> entry : map.entrySet()){
                 System.out.println(iter + ". " + entry.getValue());
@@ -50,20 +60,20 @@ public class AdminKaMU {
         switch(sw){
             case 0:
                 hash = map.keySet().toArray()[sw].toString();
-                //profilemenu(hash);
+                profilemenu(hash);
                 break;
             case 1:
                 hash = map.keySet().toArray()[sw].toString();
-                //profilemenu(hash);
+                profilemenu(hash);
                 break;
             case 2:
                 endpointmenu();
                 break;
         }     
-    }*/
+    }
     
     //this menu lists all available measuring profiles for chosen endpoint
-    public static void profilemenu(){
+    public static void profilemenu(String hash){
         int psw;
         Scanner in = new Scanner(System.in); 
         System.out.println("1. Water level");
@@ -88,7 +98,7 @@ public class AdminKaMU {
             case 3:
                 profileID = 3;
                 System.out.println("admincase 3");
-                //sendProfileSingleTarget(hash);
+                sendProfileSingleTarget(hash);
                 break;
             case 4:
                 profileID = 4;  
@@ -97,7 +107,7 @@ public class AdminKaMU {
             case 5:
                 System.out.println("admincase 5");
                 break;
-            case 0:
+            case 10:
                 System.exit(0); 
                 break;
         }
@@ -127,6 +137,7 @@ public class AdminKaMU {
                 
                 if (response.getResult() == SyncResponseResultType.SUCCESS){
                     System.out.println("User attached");
+                    receiveEvents();
                 }
                 else{
                     kaaClient.stop();
@@ -141,6 +152,7 @@ public class AdminKaMU {
 
         tecf.sendEventToAll(new ChangeProfile(profileID));
         System.out.println("Change profile request sent");
+        endpointmenu();
         //LogData log = new LogData("asdmacasd", "asdhashasd");
                 //kaaClient.addLogRecord(log);
     }
@@ -167,6 +179,7 @@ public class AdminKaMU {
                 // Assume the target variable is one of the received in the findEventListeners method
                 tecf.sendEvent(ctc, target);
                 System.out.println(target + " target");
+                endpointmenu();
             }   
         
             @Override
@@ -175,4 +188,60 @@ public class AdminKaMU {
             }
         });
     }
+    
+    public static void receiveEvents(){
+        final EventFamilyFactory eventFamilyFactory = kaaClient.getEventFamilyFactory();
+        final KaMUEventClassFamily tecf = eventFamilyFactory.getKaMUEventClassFamily();
+        System.out.println("Listening to incoming events");
+        tecf.addListener(new KaMUEventClassFamily.Listener() {
+            @Override
+            public void onEvent(ChangeProfile event, String source) {
+                System.out.println("homo"); 
+            } 
+
+            @Override
+            public void onEvent(RegisterDevice event, String source) {
+                System.out.println("Event received from: " + source);
+                String mac = event.getMac();
+                String hash = event.getKeyhash();
+                registerDevice(mac, hash);
+                sendRegistrationAnswer(hash);
+                //sendProfileSingleTarget(hash);
+                endpointmenu();
+            }
+
+            @Override
+            public void onEvent(RegistrationAnswer event, String source) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        });
+                
+   }
+    
+    public static void registerDevice(String mac, String hash){
+        String session = baas.logIn();
+        JSONArray data = baas.getDeviceInfo(session);
+        baas.updateDeviceHash(session, mac, hash);
+    }
+    
+    public static void sendRegistrationAnswer(String target) {
+        final EventFamilyFactory eventFamilyFactory = kaaClient.getEventFamilyFactory();
+        final KaMUEventClassFamily tecf = eventFamilyFactory.getKaMUEventClassFamily();
+        RegistrationAnswer ctc = new RegistrationAnswer(true);
+        tecf.sendEvent(ctc, target);
+        System.out.println("Device registration answer sent");
+    }
+    
+    public static Map parseDeviceMac() {
+        String session = baas.logIn();
+        JSONArray data = baas.getDeviceInfo(session);
+        //System.out.println(data);
+        Map<String, String> map = new HashMap();
+        for (int i = 0; i < data.length(); i++) {
+            JSONObject object = data.getJSONObject(i);
+            map.put(object.getString("hash"), object.getString("mac"));
+        }
+        return map;
+    }
+    
 }
