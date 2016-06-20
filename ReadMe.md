@@ -27,28 +27,42 @@ major.minor.status.week
 0.1.0.24
 
 status:
-0 alpha
-1 beta
-2 release candidate
-3 release
+0 alpha  
+1 beta  
+2 release candidate  
+3 release  
 
 ## Release Plan
 
-### Release Plan for 0.0.0.24
+### Release Plan for 0.1
+
+We skipped this to get unified versioning for KaMU and AdminKaMU
+
+### Release Plan for 0.2
 
 | Feature | Status |
 |:----|:----|
-| Profiling | Done |
+| Profiling logic | Done |
+| Basic commands to KaMU from AdminKaMU | Done |
 
-### Release Plan for 0.1.0.24
-
-| Feature | Status |
-|:----|:----|
-| Single Target Profiling | - |
-
-### Release Plan for 0.2.0.24
+### Release Plan for 0.3
 
 | Feature | Status |
 |:----|:----|
-| Device registration to baasbox | - |
+| Communicating with BaasBox | Done |
+| Single target profiling logic | Done |
 
+### Release Plan for 0.4
+
+| Feature | Status |
+|:----|:----|
+| - | - |
+
+### Other features, tbd
+
+* Restart/shutdown measuring units
+* Update measuring units
+* Graphical interface
+* Access admin software from internet(?)
+* Desktop version(?)
+* KaMU monitoring using AdminKaMU
