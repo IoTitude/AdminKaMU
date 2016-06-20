@@ -32,13 +32,8 @@ public class AdminKaMU {
     public static void main(String[] args) {
         createKaaClient();
         kaaClient.start();
-        attachUser();
-        
-        //do {
-            endpointmenu();
-            
-            //profilemenu();    
-        //} while (profileID != 0);  
+        attachUser();        
+        endpointmenu();           
     }
     
     //this menu lists all attached endpoints
@@ -53,8 +48,8 @@ public class AdminKaMU {
         System.out.println("2. Get endpoints");       
         
         int sw;
-        Scanner in = new Scanner(System.in);
-        sw = in.nextInt();
+        Scanner iin = new Scanner(System.in);
+        sw = iin.nextInt();
         String hash;
         
         switch(sw){
@@ -68,6 +63,9 @@ public class AdminKaMU {
                 break;
             case 2:
                 endpointmenu();
+                break;
+            case 3:
+                System.exit(0);
                 break;
         }     
     }
@@ -118,7 +116,7 @@ public class AdminKaMU {
         kaaClient = Kaa.newClient(new DesktopKaaPlatformContext(), new SimpleKaaClientStateListener() {
             @Override
             public void onStarted() {    
-                System.out.println(kaaClient.getEndpointKeyHash());
+                //System.out.println(kaaClient.getEndpointKeyHash());
                 kaaClient.setLogUploadStrategy(new RecordCountLogUploadStrategy(1));                           
             }
 
@@ -196,7 +194,8 @@ public class AdminKaMU {
         tecf.addListener(new KaMUEventClassFamily.Listener() {
             @Override
             public void onEvent(ChangeProfile event, String source) {
-                System.out.println("homo"); 
+                System.out.println("homo");
+                receiveEvents();
             } 
 
             @Override
@@ -207,12 +206,15 @@ public class AdminKaMU {
                 registerDevice(mac, hash);
                 sendRegistrationAnswer(hash);
                 //sendProfileSingleTarget(hash);
+                receiveEvents();
                 endpointmenu();
             }
 
             @Override
             public void onEvent(RegistrationAnswer event, String source) {
+                receiveEvents();
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                
             }
         });
                 
@@ -221,6 +223,7 @@ public class AdminKaMU {
     public static void registerDevice(String mac, String hash){
         String session = baas.logIn();
         JSONArray data = baas.getDeviceInfo(session);
+        
         baas.updateDeviceHash(session, mac, hash);
     }
     

@@ -146,6 +146,7 @@ public class BaasBoxController {
             // Convert new JSON object to string and then to bytes
             String json = newObj.toString();
             byte[] postData = json.getBytes();
+            System.out.println(id);
             String urlStr = "http://82.196.14.4:9000/document/Device/" + id;
             HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
             conn.setRequestMethod("PUT");
