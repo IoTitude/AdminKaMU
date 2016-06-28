@@ -21,8 +21,13 @@ import org.json.JSONObject;
  * @author h3694
  */
 public class BaasBoxController {
-    public static String logIn() {
+
+    public BaasBoxController() {
+    }
+    
+    public String logIn() {
         try {
+            
             // Data parameters for POST method
             String urlParameters = "username=admin&password=admin&appcode=1234567890";
             byte[] postData = urlParameters.getBytes();
@@ -44,18 +49,13 @@ public class BaasBoxController {
             {
                 stringBuilder.append(line + "\n");
             }
+            
             // Convert stringBuilder to string and create a JSON object based on that string, then create another JSON object to get specific data
             String jsonText = stringBuilder.toString();
             JSONObject json = new JSONObject(jsonText);
             JSONObject data = json.getJSONObject("data");
             // Get BaasBox session id. Needed for other queries
             String session = data.getString("X-BB-SESSION");
-            // Get all documents
-            //getDocuments(session, "Devices");
-            // Get admin device hashes
-            //getAdminHashes(session);
-            // Get measuring unit hashes
-            //getDeviceHashes(session);
             return session;
             
         } catch (IOException ex) {
@@ -65,7 +65,7 @@ public class BaasBoxController {
         }
     }
     
-    public static JSONObject getDocuments(String session, String collection) {
+    public JSONObject getDocuments(String session, String collection) {
         try {
             // Get documents from specific collection
             String urlStr = "http://82.196.14.4:9000/document/" + collection;
@@ -93,7 +93,7 @@ public class BaasBoxController {
         }
     }
     
-    public static void getAdminHashes(String session) {
+    public void getAdminHashes(String session) {
         // Get documents from Admin collection
         JSONObject json = getDocuments(session, "Admin");
         JSONArray data = json.getJSONArray("data");
@@ -106,17 +106,28 @@ public class BaasBoxController {
         }
     }
     
-    public static JSONArray getDeviceInfo(String session) {
-        // Get documents from Devices collection
+    public JSONArray getDeviceInfo(String session) {
+        // Get documents from Device collection
         JSONObject json = getDocuments(session, "Device");
         JSONArray data = json.getJSONArray("data");
-       
-        // Update hash for specific device. This method needs to be changed to accept device mac and hash
-        //updateDeviceHash(session, data);
         return data;
     }
     
-    public static void updateDeviceHash(String session, String mac, String hash) {
+    public JSONArray getProfileInfo(String session) {
+        // Get documents from Profile collection
+        JSONObject json = getDocuments(session, "Profile");
+        JSONArray data = json.getJSONArray("data");
+        return data;
+    }
+    
+    public JSONArray getVersionInfo(String session) {
+        // Get documents from Profile collection
+        JSONObject json = getDocuments(session, "Version");
+        JSONArray data = json.getJSONArray("data");
+        return data;
+    }
+    
+    public boolean updateDeviceHash(String session, String mac, String hash) {
         try {
             JSONArray deviceData = getDeviceInfo(session);
             JSONObject obj = new JSONObject();
@@ -129,9 +140,6 @@ public class BaasBoxController {
                     // Break the loop when the correct document is found and save the id from that document
                     id = obj.getString("id");
                     break;
-                }
-                else {
-                    System.out.println(obj.getString("mac"));
                 }
             }
             // New JSON object. This will be used to rewrite data on the document
@@ -146,7 +154,7 @@ public class BaasBoxController {
             // Convert new JSON object to string and then to bytes
             String json = newObj.toString();
             byte[] postData = json.getBytes();
-            System.out.println(id);
+            //System.out.println(id);
             String urlStr = "http://82.196.14.4:9000/document/Device/" + id;
             HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
             conn.setRequestMethod("PUT");
@@ -163,9 +171,16 @@ public class BaasBoxController {
                 stringBuilder.append(line + "\n");
             }
             System.out.println(stringBuilder.toString());
-            
+            JSONObject result = new JSONObject(stringBuilder.toString());
+            if (result.getString("result").contains("ok")) {
+                return true;
+            }
+            else {
+                return false;
+            }
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
+            return false;
         }
     }
 }
