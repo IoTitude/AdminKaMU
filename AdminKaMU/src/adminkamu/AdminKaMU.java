@@ -1,15 +1,7 @@
 package adminkamu;
 
-import java.io.File;
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.kaaproject.kaa.client.DesktopKaaPlatformContext;
 import org.kaaproject.kaa.client.Kaa;
 import org.kaaproject.kaa.client.KaaClient;
@@ -17,7 +9,6 @@ import org.kaaproject.kaa.client.SimpleKaaClientStateListener;
 import org.kaaproject.kaa.client.event.EventFamilyFactory;
 import org.kaaproject.kaa.client.event.FindEventListenersCallback;
 import org.kaaproject.kaa.client.event.registration.UserAttachCallback;
-import org.kaaproject.kaa.client.logging.strategies.RecordCountLogUploadStrategy;
 import org.kaaproject.kaa.common.endpoint.gen.SyncResponseResultType;
 import org.kaaproject.kaa.common.endpoint.gen.UserAttachResponse;
 import org.kaaproject.kaa.schema.sample.event.kamu.ChangeProfile;
@@ -167,30 +158,4 @@ public class AdminKaMU {
         tecf.sendEvent(ctc, target);
         System.out.println("Device registration answer sent");
     }
-    /*
-    public void restartApplication(int seconds)
-    {
-        new java.util.Timer().schedule(
-            new java.util.TimerTask() {
-                @Override
-                public void run() {
-                    try {
-                        StringBuilder cmd = new StringBuilder();
-                        cmd.append(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java ");
-                        for (String jvmArg : ManagementFactory.getRuntimeMXBean().getInputArguments()) {
-                            cmd.append(jvmArg + " ");
-                        }
-                        cmd.append("-cp ").append(ManagementFactory.getRuntimeMXBean().getClassPath()).append(" ");
-                        cmd.append(AdminKaMU.class.getName()).append(" ");
-                        Runtime.getRuntime().exec(cmd.toString());
-                        System.exit(0);
-                    }
-                    catch (Exception e) {
-                        System.out.println(e.getMessage());
-                    }
-                }
-            }, 
-        seconds);
-    }
-    */
 }
